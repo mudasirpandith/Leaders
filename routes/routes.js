@@ -18,7 +18,7 @@ Route.get("/home", authenticate, (req, res) => {
 });
 
 Route.post("/logout", async (req, res) => {
-  const Cleared = await res.clearCookie("Leaders");
+  const Cleared = res.clearCookie("Leaders");
   if (Cleared) {
     res.status(200).json("cleared sesion");
   }
@@ -42,7 +42,7 @@ Route.post("/register", async (req, res) => {
       });
       const addedUser = await user.save();
       if (addedUser) {
-        res.status(200).json({ message: "User added" });
+        res.status(200).json({ message: "Registered Successfully" });
       } else {
         res.status(400).json({ message: "Error in Registering User" });
       }
@@ -73,6 +73,23 @@ Route.post("/login", async (req, res) => {
   }
 });
 
+Route.post("/reset", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    res.status(400).json({ message: "Fill all fields" });
+  } else {
+    const foundUser = await User.findOne({ email });
+    if (!foundUser) {
+      res.status(400).json({ message: "User Does Not Exist" });
+    } else {
+      foundUser.password = password;
+      const saved = await foundUser.save();
+      if (saved) {
+        res.status(200).json({ message: "Password Changed" });
+      }
+    }
+  }
+});
 Route.get("/alltests/biology", async (req, res) => {
   const allBiologyTests = await Biology.find({});
   if (allBiologyTests) {

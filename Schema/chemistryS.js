@@ -15,6 +15,12 @@ const ChemistrySchema = new mongooose.Schema({
       explaination: String,
     },
   ],
+  users: [
+    {
+      username: String,
+      score: Number,
+    },
+  ],
 });
 
 const Chemistry = mongooose.model("Chemistry", ChemistrySchema);

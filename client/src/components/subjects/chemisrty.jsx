@@ -1,23 +1,35 @@
 import React, { useState, useEffect } from "react";
 import BasicCard from "./subjectcard";
 import CustomDrawer from "../drawer";
-
-import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
+import ScrollDialog from "./leaderboard";
 import Grid from "@mui/material/Grid";
-
 import ReactLoading from "react-loading";
-const Item = styled(Paper)(({ theme }) => ({
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
+import { useNavigate } from "react-router-dom";
+
 export default function Biology() {
+  const navigate = useNavigate();
   const [allTests, setTestData] = useState([]);
 
   useEffect(() => {
+    async function getUserData() {
+      try {
+        const res = await fetch(`/home`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+        if (!res.status === 200) {
+          window.alert("error in loading test");
+          navigate("/");
+        }
+        const data = await res.json();
+      } catch (err) {
+        navigate("/");
+      }
+    }
     async function getTestData() {
       try {
         const res = await fetch("/alltests/chemistry");
@@ -31,7 +43,7 @@ export default function Biology() {
         console.log(err);
       }
     }
-
+    getUserData();
     getTestData();
   }, [allTests.length]);
 
@@ -40,19 +52,21 @@ export default function Biology() {
       <CustomDrawer />
       <h1>#</h1>
       <h1>Chemistry</h1>
+
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
           {" "}
           {allTests
             .slice()
             .reverse()
-            .map((test) => {
+            .map((test, index) => {
               const url = "/test/subjectcode/" + test.TestId;
               return (
-                <Grid item xs={12} xl={4}>
-                  <Item>
+                <Grid div xs={12} xl={4}>
+                  <div className="subjectBox">
+                    <ScrollDialog users={test.users} />
                     <BasicCard topic={test.TopicName} link={url} />
-                  </Item>
+                  </div>
                 </Grid>
               );
             })}
@@ -64,7 +78,7 @@ export default function Biology() {
       {" "}
       <CustomDrawer />
       <h1>#</h1>
-      <center>
+      <center style={{ marginTop: " 100px" }}>
         <ReactLoading
           type="spin"
           color="green"
